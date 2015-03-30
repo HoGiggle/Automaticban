@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Class-Path: lib/hbase-server-0.98.7-hadoop2.jar lib/hbase-prefix-tree-
+ 0.98.7-hadoop2.jar lib/hbase-common-0.98.7-hadoop2-tests.jar lib/hbas
+ e-common-0.98.7-hadoop2.jar lib/hbase-protocol-0.98.7-hadoop2.jar lib
+ /hbase-annotations-0.98.7-hadoop2.jar lib/hbase-hadoop-compat-0.98.7-
+ hadoop2.jar lib/hbase-client-0.98.7-hadoop2.jar lib/hbase-hadoop2-com
+ pat-0.98.7-hadoop2.jar lib/htrace-core-2.04.jar lib/zookeeper-3.4.5.j
+ ar
+Main-Class: com.baina.game.analysis.FiveRule
+

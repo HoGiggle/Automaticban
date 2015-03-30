@@ -1,0 +1,84 @@
+CARD|10078830                        column=details:reason, timestamp=1426754036064, value=[{"banType":"6","bannedKey":"1","date":"2015-03-19 16
+                                      :33:15"}]
+ CARD|10343045   //                     column=details:reason, timestamp=1426754036013, value=[{"banType":"6","bannedKey":"1","date":"2015-03-19 16
+                                      :33:15"}]
+ CARD|10581314                        column=details:reason, timestamp=1426754036138, value=[{"banType":"6","bannedKey":"1","date":"2015-03-19 16
+                                      :33:15"}]
+ CARD|10582265                        column=details:reason, timestamp=1426754036169, value=[{"banType":"6","bannedKey":"1","date":"2015-03-19 16
+                                      :33:15"}]
+ CARD|10630940    //                    column=details:reason, timestamp=1426754036169, value=[{"banType":"6","bannedKey":"1","date":"2015-03-19 16
+                                      :33:15"}]
+ CARD|10638846                        column=details:reason, timestamp=1426754035992, value=[{"banType":"6","bannedKey":"1","date":"2015-03-19 16
+                                      :33:15"}]
+ CARD|10659270                        column=details:reason, timestamp=1426754036081, value=[{"banType":"6","bannedKey":"1","date":"2015-03-19 16
+                                      :33:15"}]
+ CARD|10801327                        column=details:reason, timestamp=1426754036040, value=[{"banType":"6","bannedKey":"1","date":"2015-03-19 16
+                                      :33:15"}]
+ CARD|10818539                        column=details:reason, timestamp=1426754036138, value=[{"banType":"6","bannedKey":"1","date":"2015-03-19 16
+                                      :33:15"}]
+ CARD|10855127                        column=details:reason, timestamp=1426754036169, value=[{"banType":"6","bannedKey":"1","date":"2015-03-19 16
+                                      :33:15"}]
+ CARD|10873923                        column=details:reason, timestamp=1426754034866, value=[{"banType":"6","bannedKey":"1","date":"2015-03-19 16
+                                      :33:15"}]
+ CARD|10880262                        column=details:reason, timestamp=1426754034866, value=[{"banType":"6","bannedKey":"1","date":"2015-03-19 16
+                                      :33:15"}]
+ CARD|10922143                        column=details:reason, timestamp=1426754036040, value=[{"banType":"6","bannedKey":"1","date":"2015-03-19 16
+                                      :33:15"}]
+ CARD|10956628                        column=details:reason, timestamp=1426754036028, value=[{"banType":"6","bannedKey":"1","date":"2015-03-19 16
+                                      :33:15"}]
+ CARD|10971541                        column=details:reason, timestamp=1426754036040, value=[{"banType":"6","bannedKey":"1","date":"2015-03-19 16
+                                      :33:15"}]
+ CARD|10974329                        column=details:reason, timestamp=1426754036138, value=[{"banType":"6","bannedKey":"1","date":"2015-03-19 16
+                                      :33:15"}]
+ CARD|11005091                        column=details:reason, timestamp=1426754036138, value=[{"banType":"6","bannedKey":"1","date":"2015-03-19 16
+                                      :33:15"}]
+ CARD|11176151                        column=details:reason, timestamp=1426754036169, value=[{"banType":"6","bannedKey":"1","date":"2015-03-19 16
+                                      :33:15"}]
+ CARD|11179365                        column=details:reason, timestamp=1426754036064, value=[{"banType":"6","bannedKey":"1","date":"2015-03-19 16
+                                      :33:15"}]
+ CARD|3822189                         column=details:reason, timestamp=1426754036064, value=[{"banType":"6","bannedKey":"1","date":"2015-03-19 16
+                                      :33:15"}]
+ CARD|4021771                         column=details:reason, timestamp=1426754036054, value=[{"banType":"6","bannedKey":"1","date":"2015-03-19 16
+                                      :33:15"}]
+ CARD|7522474                         column=details:reason, timestamp=1426754034866, value=[{"banType":"6","bannedKey":"1","date":"2015-03-19 16
+                                      :33:15"}]
+ CARD|8172443                         column=details:reason, timestamp=1426754036028, value=[{"banType":"6","bannedKey":"1","date":"2015-03-19 16
+                                      :33:15"}]
+ CARD|8652957                         column=details:reason, timestamp=1426754036013, value=[{"banType":"6","bannedKey":"1","date":"2015-03-19 16
+                                      :33:15"}]
+ CARD|9717494                         column=details:reason, timestamp=1426754036169, value=[{"banType":"6","bannedKey":"1","date":"2015-03-19 16
+                                      :33:15"}]
+
+
+SPARK:
+(11040896,true) //
+(10971541,true)
+(4021771,true)
+(11179365,true)
+(9717494,true)
+(10855127,true)
+(10173727,true)  //
+(10659270,true)
+(11176151,true)
+(10638846,true)
+(10922143,true)
+(10376802,true)  //
+(10581314,true)
+(10974329,true)
+(10572768,true)  //
+(8652957,true)
+(10956628,true)
+(10873923,true)
+(9971969,true)   //
+(10801327,true)
+(10078830,true)
+(6175880,true)  //
+(11005091,true)
+(7522474,true)
+(10582265,true)
+(10880262,true)
+(10638277,true) //
+(10885981,true)  //
+(3822189,true)
+(8172443,true)
+(10818539,true)
