@@ -12,9 +12,7 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.taglibs.standard.lang.jstl.NullLiteral;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -63,10 +61,9 @@ public class OneRule {
             if (Integer.parseInt(items[this.playedLocal]) > this.playedLimit)
                 tmp = 1;
             StringBuilder out = new StringBuilder();
-            String date = items[this.timeLocal].split(" ")[1];
-            out.append(date);
+            out.append(items[0]);       //date
             out.append("|");
-            out.append(tmp);
+            out.append(tmp);            //有木有玩牌局>=this.playedLimit标志位
             context.write(new Text(items[this.uidLocal]), new Text(out.toString()));
         }
     }
@@ -77,6 +74,7 @@ public class OneRule {
         private String game;
         private String date;
 
+        private String beforeTime;
         private int crDaysLimit;
         private int loginDaysLimit;
         private int wanrenLimit;
@@ -93,6 +91,7 @@ public class OneRule {
             this.game = this.conf.get("game", "CARD");
             this.date = this.conf.get("date");
 
+            this.beforeTime = this.conf.get("beforeTime");
             this.crDaysLimit = this.conf.getInt("crDaysLimit", 7);
             this.loginDaysLimit = this.conf.getInt("loginDaysLimit", 3);
             this.wanrenLimit = this.conf.getInt("wanrenLimit", 0);
@@ -113,12 +112,17 @@ public class OneRule {
                 valueSet.add(value.toString());
             }
 
+            String latestTime = Collections.max(valueSet);   //只处理1小时内登陆账号
+            if (latestTime.compareTo(this.beforeTime) < 0)
+                return;
+
             for (String value : valueSet){
                 String []items = value.split("\\|");
                 if (Integer.parseInt(items[1]) > 0){     //用户30天内玩过牌, 抛弃
                     return;
                 }
-                dateSet.add(items[0]);
+                String date = items[0].split(" ")[1];
+                dateSet.add(date);
             }
 
             //reduce 端筛选

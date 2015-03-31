@@ -8,8 +8,6 @@ import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created by jjhu on 2015/3/16.
@@ -30,7 +28,7 @@ public class CommonService {
         Configuration conf = new Configuration();
         conf.set("date", now);
         conf.set("beforeTime", before);
-        conf.set("bmidTime", mid);
+        conf.set("midTime", mid);
         conf.set("hbase.master", "10.168.184.97:60000");
         conf.set("hbase.zookeeper.quorum", "10.168.179.98:2181,10.168.182.202:2181,10.168.184.7:2181");
         conf.set("hbase.zookeeper.property.clientPort", "2181");

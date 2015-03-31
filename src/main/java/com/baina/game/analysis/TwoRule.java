@@ -15,6 +15,7 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -25,6 +26,9 @@ import java.util.*;
  * Created by jjhu on 2015/3/26.
  */
 public class TwoRule {
+
+    private static final Logger LOGGER = Logger.getLogger(TwoRule.class);
+
     public static class TwoRuleMapper extends Mapper<Object, Text, Text, Text>{
 
         private int logLength;
@@ -108,8 +112,9 @@ public class TwoRule {
             this.beforeTime = this.conf.get("beforeTime");
             this.midTime = this.conf.get("midTime");
             this.secLimit = this.conf.getInt("secLimit", 1800);
-            this.unusualLimit = this.conf.getInt("unusualLimit", 100);
+            this.unusualLimit = this.conf.getInt("unusualLimit", 10000);  //异常金币量
             this.sdf = new SimpleDateFormat("8.0 yyyy-MM-dd HH:mm:ss");
+            this.sdf.setTimeZone(TimeZone.getTimeZone("GMT+8"));
         }
 
         @Override
@@ -126,7 +131,7 @@ public class TwoRule {
             /** parse jsonArray to object list, and set trueBeforeTime by compare this.beforeTime to hisBeforeTime.
              */
             List<RuleResultCell> list = new ArrayList<>();
-            String trueBeforeTime = null;
+            String trueBeforeTime = this.beforeTime;
             if (!result.isEmpty()){
                 //list = JSON.parseArray(new String(result.value()), RuleResultCell.class);
                 list = JSON.parseObject(new String(result.value()), new TypeReference<List<RuleResultCell>>() {
@@ -140,13 +145,14 @@ public class TwoRule {
                 }
             }
 
+            LOGGER.info("reduce--->" + key.toString() + "........." + trueBeforeTime);
             /** Get true data, and add unusual coins
              *  if unusualSum >= this.unusualLimit, write it to hbase.
              */
             List<String> userActions = new ArrayList<>();
             for (Text value : values){
                 String valueStr = value.toString();
-                if ((trueBeforeTime != null) && (valueStr.compareTo(trueBeforeTime) >= 0)){
+                if ((valueStr.compareTo(trueBeforeTime) >= 0)){
                     userActions.add(valueStr);
                 }
             }
@@ -164,19 +170,25 @@ public class TwoRule {
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
-                String timeLimit = this.sdf.format(new Date(d.getTime() + this.secLimit * 1000l));
+                String timeLimit = this.sdf.format(d.getTime() + this.secLimit * 1000l);
 
                 int j;
                 for ( j= i; j < userActions.size(); j++){
-                    String []itemss = userActions.get(j).split("\\|");
-                    if (itemss[0].compareTo(timeLimit) > 0){ //时间间隔超过30分钟，返回
+                    String []itemsj = userActions.get(j).split("\\|");
+                    if (itemsj[0].compareTo(timeLimit) > 0){ //时间间隔超过30分钟，返回
                         break;
                     }
 
-                    int nowPropAmount = Integer.parseInt(itemss[1]) - Integer.parseInt(itemss[2]);
+                    int nowPropAmount = Integer.parseInt(itemsj[1]) - Integer.parseInt(itemsj[2]);
+                    if ((nowPropAmount - beforePropAmount) != 0){
+                        LOGGER.info("except--->i:"+ key.toString()+ "...." + userActions.get(i));
+                        LOGGER.info("except--->" + beforePropAmount);
+                        LOGGER.info("except--->j: " +key.toString()+ "...." + userActions.get(j));
+                    }
+
                     unusualSum += (nowPropAmount - beforePropAmount);
-                    beforePropAmount = Integer.parseInt(itemss[1]);
-                    if (unusualSum >= this.unusualLimit){   //如果异常金币大于100w，写入hbase
+                    beforePropAmount = Integer.parseInt(itemsj[1]);
+                    if (Math.abs(unusualSum) >= this.unusualLimit){   //如果异常金币大于100w，写入hbase
                         /** parse object list to jsonArray string, and put to hbase.
                          */
                         RuleResultCell cell = new RuleResultCell();
@@ -184,7 +196,11 @@ public class TwoRule {
                         cell.setBanType(2);
                         cell.setBannedKey("1");
 
-                        String tmp = itemss[0].compareTo(this.midTime) > 0 ? items[0] : this.midTime;
+                        LOGGER.info("jjhu---->start: "+ key.toString()+ "...." + userActions.get(i));
+                        LOGGER.info("jjhu---->Sum: " +key.toString()+ "...." + unusualSum);
+                        LOGGER.info("jjhu---->end: " +key.toString()+ "...." + userActions.get(j));
+
+                        String tmp = itemsj[0].compareTo(this.midTime) > 0 ? items[0] : this.midTime;
                         cell.setBeforeTime(tmp);
                         list.add(cell);
                         String jsonResult = JSON.toJSONString(list);
