@@ -14,6 +14,7 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -28,6 +29,9 @@ import java.util.regex.Pattern;
  * Created by jjhu on 2015/3/27.
  */
 public class ThreeRule {
+
+    private static final Logger LOGGER = Logger.getLogger(ThreeRule.class);
+
     public static class ThreeRuleMapper extends Mapper<Object, Text, Text, Text>{
         private int logLength;
         private int timeLocal;
@@ -83,31 +87,33 @@ public class ThreeRule {
             if (Integer.parseInt(items[this.playedLocal]) > this.playedLimit)
                 return;
 
-            if (Integer.parseInt(items[this.caishenLocal]) <= this.caishenLimit)
+            if (Integer.parseInt(items[this.caishenLocal]) > this.caishenLimit)
                 return;
 
-            //万人场次数筛选
+
+            //财神、万人场次数筛选
             int uid = Integer.parseInt(items[this.uidLocal]);
             int table = uid % 16;
 
             if (wanrenPst_map.containsKey(table)){
-                if (CommonService.getWanrenTimes(wanrenPst_map.get(table), uid) <= this.wanrenLimit)
+                if (CommonService.isPlayedCaiOrWanren(wanrenPst_map.get(table), uid, this.caishenLimit, this.wanrenLimit))
                     return;
             }else {
                 PreparedStatement pst = null;
                 try {
-                    pst = this.conn.prepareStatement("select t.amount from c_property_"
-                            + table +" t where t.acc_id=? and t.prop_id=1005");
+                    pst = this.conn.prepareStatement("select * from c_property_"
+                            + table +" t where t.acc_id=? and ((t.prop_id=1005 and t.amount>?) or (t.prop_id=1002 and t.amount>?))");
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
                 if (pst != null){
                     wanrenPst_map.put(table, pst);
-                    if (CommonService.getWanrenTimes(pst, uid) <= this.wanrenLimit)
+                    if (CommonService.isPlayedCaiOrWanren(wanrenPst_map.get(table), uid, this.caishenLimit, this.wanrenLimit))
                         return;
                 }
             }
 
+            LOGGER.info("map-->   uid:" + uid + "  Ip:" + items[this.outIpLocal]);
             //ip校验，且不能为0.0.0.0
             Pattern p = Pattern.compile("^(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}$");
             Matcher m = p.matcher(items[this.outIpLocal]);
@@ -133,13 +139,13 @@ public class ThreeRule {
                 }
             }
 
-            //
             //write the data we need.
             StringBuilder sb = new StringBuilder();
             sb.append(items[this.outIpLocal]);
             sb.append("|");
             sb.append(items[this.rechargeLocal]);
             context.write(new Text(sb.toString()), new Text(items[this.uidLocal]));
+            LOGGER.info("map--->     key:" + sb.toString() + "value:" + uid);
         }
 
         @Override
@@ -164,10 +170,12 @@ public class ThreeRule {
                 }
             }
 
-            try {
-                this.conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
+            if (this.conn != null){
+                try {
+                    this.conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -198,6 +206,9 @@ public class ThreeRule {
             for (Text value :values){                      //去除重复user id
                 uidSet.add(Integer.parseInt(value.toString()));
             }
+
+            LOGGER.info("reduce->size:" + uidSet.size());
+
             if (uidSet.size() < this.uidLimit)            //同一ip和充值金额下账号数量 < 账号数量限制, return
                 return;
 
@@ -239,6 +250,9 @@ public class ThreeRule {
             Set<Map.Entry<Integer, List<Integer>>> entries = crdateAndUid_map.entrySet();
             for (Map.Entry<Integer, List<Integer>> entry : entries){
                 List<Integer> uids = entry.getValue();
+
+                LOGGER.info("reduce-->size:" + uids.size());
+
                 if (uids.size() >= this.uidLimit){
                     for (int uid : uids){
                         /** get from 'automatic_ban' hbase table
@@ -272,7 +286,6 @@ public class ThreeRule {
                     }
                 }
             }
-
         }
 
         @Override
@@ -303,8 +316,8 @@ public class ThreeRule {
         String today = sdf.format(new Date());
 
         Date now = new Date();
-        String startTime = sdf1.format(now);
-        String endTime = sdf1.format(now.getTime() - 12*60*60*1000l);
+        String endTime = sdf1.format(now);
+        String startTime = sdf1.format(now.getTime() - 12*60*60*1000l);
 
         Configuration conf = CommonService.getConf();
         conf.set("startTime", startTime);

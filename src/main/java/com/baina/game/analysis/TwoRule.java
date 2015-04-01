@@ -112,7 +112,7 @@ public class TwoRule {
             this.beforeTime = this.conf.get("beforeTime");
             this.midTime = this.conf.get("midTime");
             this.secLimit = this.conf.getInt("secLimit", 1800);
-            this.unusualLimit = this.conf.getInt("unusualLimit", 10000);  //异常金币量
+            this.unusualLimit = this.conf.getInt("unusualLimit", 1000000);  //异常金币量
             this.sdf = new SimpleDateFormat("8.0 yyyy-MM-dd HH:mm:ss");
             this.sdf.setTimeZone(TimeZone.getTimeZone("GMT+8"));
         }

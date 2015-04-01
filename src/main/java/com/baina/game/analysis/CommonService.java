@@ -141,43 +141,43 @@ public class CommonService {
         int tables = 16;   //分表数
         String pass = null;
 
-        try {
-            for (int i = 0; i < tables; i++){
+        for (int i = 0; i < tables; i++){
+            try {
                 pst = conn.prepareStatement("select t.user_str from a_acc_account_account_"+ i +" t where t.acc_id=?");
                 pst.setInt(1, userId);
                 rs = pst.executeQuery();
                 if (rs.next()){
                     pass = rs.getString(1);
-                    return pass;
+                    break;
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } finally {
+                if (rs != null){
+                    try {
+                        rs.close();
+                    } catch (SQLException e) {
+                        LOGGER.info("CommonService---->getDateStamp():resultSet close failed");
+                        e.printStackTrace();
+                    }
+                }
+                if (pst != null){
+                    try {
+                        pst.close();
+                    } catch (SQLException e) {
+                        LOGGER.info("CommonService---->getDateStamp:preparedStatement close failed");
+                        e.printStackTrace();
+                    }
                 }
             }
-            conn.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            if (rs != null){
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    LOGGER.info("CommonService---->getDateStamp():resultSet close failed");
-                    e.printStackTrace();
-                }
-            }
-            if (pst != null){
-                try {
-                    pst.close();
-                } catch (SQLException e) {
-                    LOGGER.info("CommonService---->getDateStamp:preparedStatement close failed");
-                    e.printStackTrace();
-                }
-            }
-            if (conn != null){
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                    LOGGER.info("CommonService---->getDateStamp:connection close failed");
-                    e.printStackTrace();
-                }
+        }
+
+        if (conn != null){
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                LOGGER.info("CommonService---->getDateStamp:connection close failed");
+                e.printStackTrace();
             }
         }
         return pass;
@@ -216,14 +216,16 @@ public class CommonService {
         return false;
     }
 
-    public static int getWanrenTimes(PreparedStatement pst, int uid){
+    public static boolean isPlayedCaiOrWanren(PreparedStatement pst, int uid, int caiLimit, int wanLimit){
         ResultSet rs = null;
-        int wanrenTimes = 0;
+        boolean result = false;
         try {
             pst.setInt(1, uid);
+            pst.setInt(2, caiLimit);
+            pst.setInt(3, wanLimit);
             rs = pst.executeQuery();
             if (rs.next()){
-                wanrenTimes = rs.getInt(1);
+                result = true;
             }
         } catch (SQLException e) {
             LOGGER.info("CommonService--->getWanrenTimes() get rs failed");
@@ -238,7 +240,7 @@ public class CommonService {
                 }
             }
         }
-        return wanrenTimes;
+        return result;
     }
 
     public static int getMMBRecharge(PreparedStatement pst, int uid){
@@ -289,32 +291,6 @@ public class CommonService {
             }
         }
         return result;
-    }
-
-
-    public static boolean isMobileCard(String imsi){
-
-        if (imsi == null || imsi.length() == 0)
-            return false;
-
-        /*Logger logger = Logger.getLogger(CommonService.class);
-        try {
-            String MNC = imsi.substring(3, 5);
-            if (MNC.equals("00") || MNC.equals("02")) //移动运营商标识MNC标识00、02
-                return true;
-            else
-                return false;
-        }catch (Exception e){
-            logger.info("jjhu---->" + imsi);
-            e.printStackTrace();
-        }
-        return false;*/
-
-        String MNC = imsi.substring(3, 5);
-        if (MNC.equals("00") || MNC.equals("02")) //移动运营商标识MNC标识00、02
-            return true;
-        else
-            return false;
     }
 
     public static boolean isTrueImsi(String imsi){
